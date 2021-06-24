@@ -77,7 +77,12 @@ def rock_paper(message):
 
 def calc_start(message):
     global calc_num1
-    calc_num1 = float(message.text)
+    try:
+        calc_num1 = float(message.text)
+    except ValueError:
+        bot.send_message(message.chat.id, "Вы ввели что-то не понятное. Повторите ввод заново")
+        bot.register_next_step_handler(message, calc_start)
+        return
     bot.send_message(message.chat.id, "Введите операцию:", reply_markup=keyboard_calc)
     bot.register_next_step_handler(message, calc_op)
 
@@ -88,7 +93,12 @@ def calc_op(message):
     bot.register_next_step_handler(message, calc_second)
 
 def calc_second(message):
-    calc_num2 = float(message.text)
+    try:
+        calc_num2 = float(message.text)
+    except ValueError:
+        bot.send_message(message.chat.id, "Вы ввели что-то не понятное. Повторите ввод заново")
+        bot.register_next_step_handler(message, calc_second)
+        return
     if calc_action == '+':
         bot.send_message(message.chat.id, "Результат: " + str(calc_num1 + calc_num2), reply_markup=keyboard_main)
     elif calc_action == '-':
@@ -96,6 +106,9 @@ def calc_second(message):
     elif calc_action == '*':
         bot.send_message(message.chat.id, "Результат: " + str(calc_num1 * calc_num2), reply_markup=keyboard_main)
     elif calc_action == '/':
+        if calc_num2 == 0:
+            bot.send_message(message.chat.id, "На ноль делить нельзя!", reply_markup=keyboard_main)
+            return
         bot.send_message(message.chat.id, "Результат: " + str(calc_num1 / calc_num2), reply_markup=keyboard_main)
 
 bot.polling(none_stop=True, interval=0)
